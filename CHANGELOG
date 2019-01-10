@@ -1,0 +1,4 @@
+V 0.1
+-----------
+* First draft for plugin
+  Working callback which sends some information to the AlertManager with HTTP-POST

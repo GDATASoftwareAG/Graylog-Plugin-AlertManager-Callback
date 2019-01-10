@@ -1,0 +1,94 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.harbby:gradle-serviceloader:1.1.5"
+    }
+}
+
+
+def title = "mOPS_Graylog_AlertManagerNotificationPlugin"
+
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags', '--long'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+apply plugin: "com.github.harbby.gradle.serviceloader"
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: "jacoco"
+
+jacoco {
+    toolVersion = "0.8.2"
+}
+
+serviceLoader {
+    serviceInterface 'org.graylog2.plugin.Plugin'
+}
+
+group = 'de.gdata.mobilelab'
+version = getVersionName()
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+repositories {
+    mavenCentral()
+    maven { url 'http://repo.spring.io/plugins-release/'}
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.graylog2/graylog2-plugin
+    compile group: 'org.graylog2', name: 'graylog2-server', version: '2.5.0'
+
+    // https://mvnrepository.com/artifact/org.jboss.dashboard-builder/dashboard-builder-bom
+    compile group: 'org.jboss.dashboard-builder', name: 'dashboard-builder-bom', version: '6.5.0.Final', ext: 'pom'
+
+    // https://mvnrepository.com/artifact/com.google.auto.value/auto-value
+    compileOnly group: 'com.google.auto.value', name: 'auto-value', version: '1.6.3'
+
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
+
+
+    // TESTS
+
+    // https://mvnrepository.com/artifact/org.springframework/spring-web
+    testCompile group: 'org.springframework', name: 'spring-web', version: '5.1.4.RELEASE'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.13'
+
+    // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    testCompile group: 'org.testcontainers', name: 'testcontainers', version: '1.10.5'
+
+}
+
+jar {
+    archiveName = "graylog-plugin-alertmanagercallback-" + getVersionName() + ".jar"
+    baseName = title
+    version = getVersionName()
+    group = "de.gdata.mobilelab.alertmanagercallback"
+    manifest {
+        attributes(
+                'Implementation-Title': title,
+                'Implementation-Version': getVersionName(),
+                'Build-Time': new Date().format("yyy-MM-dd HH:mm:ss"),
+                'Graylog-Plugin-Properties-Path': 'de.gdata.mobilelab.alertmanagercallback.graylog-plugin-alertmanagercallback'
+        )
+    }
+}

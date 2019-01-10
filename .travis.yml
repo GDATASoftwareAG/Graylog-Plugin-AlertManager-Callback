@@ -1,0 +1,16 @@
+language: java
+jdk:
+  - oraclejdk8
+
+services:
+  - docker
+
+install:
+  - ./gradlew build -x check --no-daemon
+
+
+jobs:
+  include:
+    - stage: test
+      env: [ NAME=functionallity ]
+      script: ./gradlew check javadoc --no-daemon
