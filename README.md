@@ -1,4 +1,4 @@
-# Graylog AlertManager Notification Plugin
+# Graylog AlertManager Notification Plugin [![Build Status](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback.svg?branch=master)](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback)
 This plugin can be used for connecting [Graylog](https://www.graylog.org/) alerts to the [Prometheus](https://prometheus.io/) [AlertManager](https://prometheus.io/docs/alerting/alertmanager/).
 
 The plugin development is based on [Graylog2/graylog-plugin-sample](https://github.com/Graylog2/graylog-plugin-sample) which is mentioned in the [Graylog plugin documentation](http://docs.graylog.org/en/2.4/pages/plugins.html).
