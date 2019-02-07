@@ -1,4 +1,10 @@
-# Graylog AlertManager Notification Plugin [![Build Status](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback.svg?branch=master)](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback) [![Known Vulnerabilities](https://snyk.io/test/github/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback/badge.svg)](https://snyk.io/test/github/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback) 
+[![Build Status](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback.svg?branch=master)](https://travis-ci.org/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3a48bd0e2e64a2499cc25c7d2a3abe6)](https://app.codacy.com/app/StefanHufschmidt/Graylog-Plugin-AlertManager-Callback?utm_source=github.com&utm_medium=referral&utm_content=GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback&utm_campaign=Badge_Grade_Dashboard)
+
+[![Known Vulnerabilities](https://snyk.io/test/github/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback/badge.svg)](https://snyk.io/test/github/GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback)
+
+# Graylog AlertManager Notification Plugin   
 This plugin can be used for connecting [Graylog](https://www.graylog.org/) alerts to the [Prometheus](https://prometheus.io/) [AlertManager](https://prometheus.io/docs/alerting/alertmanager/).
 
 The plugin development is based on [Graylog2/graylog-plugin-sample](https://github.com/Graylog2/graylog-plugin-sample) which is mentioned in the [Graylog plugin documentation](http://docs.graylog.org/en/2.4/pages/plugins.html).
