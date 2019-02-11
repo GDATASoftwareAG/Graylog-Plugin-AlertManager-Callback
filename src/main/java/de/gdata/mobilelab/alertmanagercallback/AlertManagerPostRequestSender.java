@@ -65,20 +65,19 @@ class AlertManagerPostRequestSender {
         connection.setRequestProperty("Content-Type", "application/json;");
         connection.setRequestProperty("Accept", "application/json,text/plain");
         connection.setRequestProperty("Method", "POST");
-        OutputStream os = connection.getOutputStream();
-        os.write(payload.getBytes(StandardCharsets.UTF_8));
-        os.close();
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(payload.getBytes(StandardCharsets.UTF_8));
+        }
 
         StringBuilder sb = new StringBuilder();
         int HttpResult = connection.getResponseCode();
         if (HttpResult == HttpURLConnection.HTTP_OK) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
             }
-            br.close();
             connection.disconnect();
             return sb.toString();
         } else {
