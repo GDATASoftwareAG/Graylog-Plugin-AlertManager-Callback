@@ -31,8 +31,8 @@ public class AlertManagerAlarmCallbackTest {
         alertManagerAlarmCallback.initialize(configuration);
 
         // then: alertManagerAlarmCallback should have been correctly initialized
-        // Check that ObjectMapper is not null
-        Field field = AlertManagerAlarmCallback.class.getDeclaredField("objectMapper");
+        // Check that alertManagerPostRequestSender is not null
+        Field field = AlertManagerAlarmCallback.class.getDeclaredField("alertManagerPostRequestSender");
         field.setAccessible(true);
         assertNotNull(field.get(alertManagerAlarmCallback));
 

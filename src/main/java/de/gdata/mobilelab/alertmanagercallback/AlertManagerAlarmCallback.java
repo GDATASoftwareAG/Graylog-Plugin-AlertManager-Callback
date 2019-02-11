@@ -1,7 +1,5 @@
 package de.gdata.mobilelab.alertmanagercallback;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
@@ -14,28 +12,19 @@ import org.graylog2.plugin.configuration.fields.ConfigurationField.Optional;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.streams.Stream;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class AlertManagerAlarmCallback implements AlarmCallback {
 
     private Configuration configuration;
-    private ObjectMapper objectMapper;
+    private AlertManagerPostRequestSender alertManagerPostRequestSender;
 
     @Override
     public void initialize(Configuration config) throws AlarmCallbackConfigurationException {
         configuration = config;
-        if (objectMapper == null) {
-            objectMapper = new ObjectMapper();
-        }
+        alertManagerPostRequestSender = new AlertManagerPostRequestSender(config.getString("alertmanager_api_url"));
     }
 
     @Override
@@ -46,60 +35,7 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
                                                                             .withStream(stream)
                                                                             .build();
 
-        Object[] wrapper = new Object[1];
-        wrapper[0] = alertManagerPayload;
-
-        final String alertManagerApiUrl = configuration.getString("alertmanager_api_url");
-        try {
-            String responseAsString = postForResponseAsString(alertManagerApiUrl, objectMapper.writeValueAsString(wrapper));
-            AlertManagerResponse alertManagerResponse = objectMapper.readValue(responseAsString, AlertManagerResponse.class);
-            if (!AlertManagerResponse.STATUS_SUCCESS.equals(alertManagerResponse.getStatus())) {
-                throw new AlarmCallbackException("Response from AlertManager for Alert failed. Response-Status: '"
-                                                         + alertManagerResponse.getStatus() + "'.");
-            }
-        } catch (Exception e) {
-            throw new AlarmCallbackException("Could not send Alert to AlertManager (" + alertManagerApiUrl + ").", e);
-        }
-    }
-
-    /**
-     * Sends the POST-request to the given targetUrl with given payload as body.
-     *
-     * @param targetUrl the target url of POST-request
-     * @param payload the payload (JSON body)
-     * @return the response
-     * @throws IOException if request fails
-     */
-    private String postForResponseAsString(String targetUrl, String payload) throws IOException {
-        URL apiUrl = new URL(targetUrl);
-        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-
-        connection.setRequestProperty("Content-Type", "application/json;");
-        connection.setRequestProperty("Accept", "application/json,text/plain");
-        connection.setRequestProperty("Method", "POST");
-        OutputStream os = connection.getOutputStream();
-        os.write(payload.getBytes(StandardCharsets.UTF_8));
-        os.close();
-
-        StringBuilder sb = new StringBuilder();
-        int HttpResult = connection.getResponseCode();
-        if (HttpResult == HttpURLConnection.HTTP_OK) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            br.close();
-            connection.disconnect();
-            return sb.toString();
-        } else {
-            throw new IOException("Could not get a valid response for POST-request to '" + targetUrl
-                                          + "'. ResponseCode: " + connection.getResponseCode()
-                                          + " ResponseMessage: '" + connection.getResponseMessage() + "'.");
-        }
+        alertManagerPostRequestSender.sendPostRequestToAlertManager(alertManagerPayload);
     }
 
     @Override
