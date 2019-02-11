@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 public class AlertManagerAlarmCallback implements AlarmCallback {
@@ -41,22 +40,11 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
 
     @Override
     public void call(Stream stream, AlertCondition.CheckResult result) throws AlarmCallbackException {
-        AlertManagerPayload alertManagerPayload = new AlertManagerPayload();
-        alertManagerPayload.setStartsAt(result.getTriggeredAt().toString());
-        alertManagerPayload.setEndsAt(result.getTriggeredAt().plusMinutes(result.getTriggeredCondition().getGrace()).toString());
-        Object streamUrl = result.getTriggeredCondition().getParameters().get("stream_url");
-        alertManagerPayload.setGeneratorURL(streamUrl != null ? (String) streamUrl : null);
-
-        Map<String, Object> labels = new HashMap<>();
-        labels.put("alertname", configuration.getString("alertmanager_alert_name"));
-        alertManagerPayload.setLabels(labels);
-
-        Map<String, Object> annotations = new HashMap<>();
-        annotations.put("stream_title", stream.getTitle());
-        annotations.put("triggered_at", result.getTriggeredAt().toString());
-        annotations.put("triggered_rule_description", result.getTriggeredCondition().getDescription());
-        annotations.put("triggered_rule_title", result.getTriggeredCondition().getTitle());
-        alertManagerPayload.setAnnotations(annotations);
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withCheckResult(result)
+                                                                            .withConfiguration(configuration)
+                                                                            .withStream(stream)
+                                                                            .build();
 
         Object[] wrapper = new Object[1];
         wrapper[0] = alertManagerPayload;

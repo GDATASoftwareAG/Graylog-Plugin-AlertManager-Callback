@@ -94,4 +94,35 @@ public class AlertManagerAlarmCallbackIT {
         assertTrue(alertOverview.contains("TestAlert1"));
     }
 
+    @Test
+    public void callWithNullValues() throws AlarmCallbackException {
+        // given: Stream stub
+        Stream stream = mock(Stream.class);
+        when(stream.getTitle()).thenReturn(null);
+
+        // and: AlertCondition stub
+        AlertCondition alertCondition = mock(AlertCondition.class);
+        when(alertCondition.getTitle()).thenReturn(null);
+        when(alertCondition.getDescription()).thenReturn(null);
+        when(alertCondition.getGrace()).thenReturn(1); // Grace time in minutes
+        when(alertCondition.getParameters()).thenReturn(null);
+
+        // and: AlertCondition.CheckResult stub
+        AlertCondition.CheckResult checkResult = mock(AlertCondition.CheckResult.class);
+        when(checkResult.getTriggeredAt()).thenReturn(null);
+        when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
+        when(checkResult.getMatchingMessages()).thenReturn(null);
+
+        // expect: No exception thrown
+        alertManagerAlarmCallback.call(stream, checkResult);
+
+        // and: Alert has been triggered in AlertManager
+        String alertOverview = new RestTemplate().getForObject("http://" + alertManagerContainer.getContainerIpAddress()
+                                                                       + ":" + alertManagerContainer.getMappedPort(9093)
+                                                                       + "/api/v1/alerts/groups",
+                                                               String.class);
+        assertNotNull(alertOverview);
+        assertTrue(alertOverview.contains("TestAlert1"));
+    }
+
 }
