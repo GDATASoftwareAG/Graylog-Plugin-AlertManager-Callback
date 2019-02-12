@@ -5,20 +5,22 @@ import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.streams.Stream;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 class AlertManagerPayloadBuilder {
 
-    private static final String STREAM_TITLE_KEY = "stream_title";
-    private static final String ALERTMANAGER_ALERT_NAME_KEY = "alertmanager_alert_name";
     private static final String ALERTNAME_KEY = "alertname";
+
     private Stream stream;
     private AlertCondition.CheckResult checkResult;
     private Configuration configuration;
+    private CustomPropertiesTextFieldParser customPropertiesTextFieldParser;
 
     private AlertManagerPayloadBuilder() {
         // Private constructor to hide the implicit one
+        customPropertiesTextFieldParser = new CustomPropertiesTextFieldParser();
     }
 
     static AlertManagerPayloadBuilder newInstance() {
@@ -56,10 +58,18 @@ class AlertManagerPayloadBuilder {
 
     private Map<String, Object> extractLabels() {
         Map<String, Object> labels = new HashMap<>();
-        if(configuration != null && configuration.getString(ALERTMANAGER_ALERT_NAME_KEY) != null) {
-            labels.put(ALERTNAME_KEY, configuration.getString(ALERTMANAGER_ALERT_NAME_KEY));
+        if(configuration != null && configuration.getString(AlertManagerAlarmCallback.CONFIGURATION_KEY_ALERT_NAME) != null) {
+            labels.put(ALERTNAME_KEY, configuration.getString(AlertManagerAlarmCallback.CONFIGURATION_KEY_ALERT_NAME));
         } else {
             labels.put(ALERTNAME_KEY, "Please add a valid configuration object to AlertManager plugin.");
+        }
+
+        // custom labels
+        final String customLabelString = configuration != null ? configuration.getString(AlertManagerAlarmCallback.CONFIGURATION_KEY_CUSTOM_LABELS) : null;
+        try {
+            labels.putAll(customPropertiesTextFieldParser.extractKeyValuePairsFromCustomField(customLabelString));
+        } catch (IOException e) {
+            // damaged configuration, so we'll not put any additional label into the map
         }
 
         return labels;
@@ -69,7 +79,7 @@ class AlertManagerPayloadBuilder {
         Map<String, Object> annotations = new HashMap<>();
 
         if(stream != null && stream.getTitle() != null) {
-            annotations.put(STREAM_TITLE_KEY, stream.getTitle());
+            annotations.put("stream_title", stream.getTitle());
         }
 
         if(checkResult != null) {
@@ -78,6 +88,14 @@ class AlertManagerPayloadBuilder {
                 annotations.put("triggered_rule_description", checkResult.getTriggeredCondition().getDescription());
                 annotations.put("triggered_rule_title", checkResult.getTriggeredCondition().getTitle());
             }
+        }
+
+        // custom annotations
+        final String customAnnotationString = configuration != null ? configuration.getString(AlertManagerAlarmCallback.CONFIGURATION_KEY_CUSTOM_ANNOTATIONS) : null;
+        try {
+            annotations.putAll(customPropertiesTextFieldParser.extractKeyValuePairsFromCustomField(customAnnotationString));
+        } catch (IOException e) {
+            // damaged configuration, so we'll not put any additional annotation into the map
         }
 
         return annotations;

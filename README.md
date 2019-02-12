@@ -28,6 +28,8 @@ The values `startsAt`, `endsAt` and `generatorURL` will be transmitted to the Al
 `startsAt` will be set to the point of time when the condition triggered the alert.
 `endsAt` will be set to the point of time when the condition triggered the alert plus the set grace time which is configured for the alert.
 
+Additionally you can configure your own custom annotations and labels which should be submitted to the AlertManager (see screenshot below).
+
 ## How to deploy on Graylog
 You can easily build the plugin by executing `./gradlew build`. 
 Afterwards there should be a `.jar` file inside the `build/libs/` directory.
@@ -37,9 +39,6 @@ Follow the instructions mentioned [here](http://docs.graylog.org/en/2.4/pages/pl
 ![Configuration of Callback](images/New_AlertManager_Callback_Window.png)
 
 ## Planned Features
-* Add possibility to define custom labels in UI when configuring the callback
-* Add possibility to define custom annotations in UI when configuring the callback
-
 You would like to contribute anything? - Take a look at [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Known Issues

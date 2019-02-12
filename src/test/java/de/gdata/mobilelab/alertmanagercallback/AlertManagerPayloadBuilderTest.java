@@ -105,6 +105,8 @@ public class AlertManagerPayloadBuilderTest {
         // given: configuration mock
         Configuration configuration = mock(Configuration.class);
         when(configuration.getString("alertmanager_alert_name")).thenReturn("AlertName");
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn("environment: production;system=webapp;priority=major");
+        when(configuration.getString("alertmanager_custom_labels")).thenReturn("environmentlabel: productionlabel;systemlabel=webapplabel;prioritylabel=majorlabel");
 
         // and: stream mock
         Stream stream = mock(Stream.class);
@@ -133,12 +135,18 @@ public class AlertManagerPayloadBuilderTest {
         // expect: correct values set
         // - labels
         assertEquals("AlertName", alertManagerPayload.getLabels().get("alertname"));
+        assertEquals("productionlabel", alertManagerPayload.getLabels().get("environmentlabel"));
+        assertEquals("webapplabel", alertManagerPayload.getLabels().get("systemlabel"));
+        assertEquals("majorlabel", alertManagerPayload.getLabels().get("prioritylabel"));
 
         // - annotations
         assertEquals("StreamTitle", alertManagerPayload.getAnnotations().get("stream_title"));
         assertEquals(triggeredAt.toString(), alertManagerPayload.getAnnotations().get("triggered_at"));
         assertEquals("aDescription", alertManagerPayload.getAnnotations().get("triggered_rule_description"));
         assertEquals("aTitle", alertManagerPayload.getAnnotations().get("triggered_rule_title"));
+        assertEquals("production", alertManagerPayload.getAnnotations().get("environment"));
+        assertEquals("webapp", alertManagerPayload.getAnnotations().get("system"));
+        assertEquals("major", alertManagerPayload.getAnnotations().get("priority"));
 
         // - startsAt
         assertEquals(triggeredAt.toString(), alertManagerPayload.getStartsAt());
@@ -268,5 +276,200 @@ public class AlertManagerPayloadBuilderTest {
         // expect: correct values set
         // - generatorUrl
         assertNull(alertManagerPayload.getGeneratorURL());
+    }
+
+    @Test
+    public void buildWithCustomLabels() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_alert_name")).thenReturn("Test234");
+        when(configuration.getString("alertmanager_custom_labels")).thenReturn("environment: production;system=webapp;priority=major");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - labels
+        assertEquals("Test234", alertManagerPayload.getLabels().get("alertname"));
+        assertEquals("production", alertManagerPayload.getLabels().get("environment"));
+        assertEquals("webapp", alertManagerPayload.getLabels().get("system"));
+        assertEquals("major", alertManagerPayload.getLabels().get("priority"));
+        assertEquals(4, alertManagerPayload.getLabels().size());
+    }
+
+    @Test
+    public void buildWithoutCustomLabels() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_alert_name")).thenReturn("Test234");
+        when(configuration.getString("alertmanager_custom_labels")).thenReturn("");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - labels
+        assertEquals("Test234", alertManagerPayload.getLabels().get("alertname"));
+        assertEquals(1, alertManagerPayload.getLabels().size());
+    }
+
+    @Test
+    public void buildWithOneCustomLabel() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_alert_name")).thenReturn("Test234");
+        when(configuration.getString("alertmanager_custom_labels")).thenReturn("level: critical");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - labels
+        assertEquals("Test234", alertManagerPayload.getLabels().get("alertname"));
+        assertEquals("critical", alertManagerPayload.getLabels().get("level"));
+        assertEquals(2, alertManagerPayload.getLabels().size());
+    }
+
+    @Test
+    public void buildWithStrangeNotatedCustomLabels() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_alert_name")).thenReturn("Test234");
+        when(configuration.getString("alertmanager_custom_labels")).thenReturn(";level;;;system=production=staging;;");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - labels
+        assertEquals("Test234", alertManagerPayload.getLabels().get("alertname"));
+        assertEquals("", alertManagerPayload.getLabels().get("level"));
+        assertEquals("production=staging", alertManagerPayload.getLabels().get("system"));
+        assertEquals(3, alertManagerPayload.getLabels().size());
+    }
+
+    @Test
+    public void buildWithCustomAnnotations() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn("environment: production;system=webapp;priority=major");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("production", alertManagerPayload.getAnnotations().get("environment"));
+        assertEquals("webapp", alertManagerPayload.getAnnotations().get("system"));
+        assertEquals("major", alertManagerPayload.getAnnotations().get("priority"));
+        assertEquals(3, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithCustomAnnotationsInAdditionToDefaultOnes() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn("environment: production;system=webapp;priority=major");
+
+        // and: stream mock
+        Stream stream = mock(Stream.class);
+        when(stream.getTitle()).thenReturn("StreamTitle");
+
+        // and: checkResult mock
+        AlertCondition.CheckResult checkResult = mock(AlertCondition.CheckResult.class);
+        DateTime triggeredAt = new DateTime();
+        when(checkResult.getTriggeredAt()).thenReturn(triggeredAt);
+        AlertCondition alertCondition = mock(AlertCondition.class);
+        when(alertCondition.getDescription()).thenReturn("aDescription");
+        when(alertCondition.getTitle()).thenReturn("aTitle");
+        when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .withStream(stream)
+                                                                            .withCheckResult(checkResult)
+                                                                            .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("production", alertManagerPayload.getAnnotations().get("environment"));
+        assertEquals("webapp", alertManagerPayload.getAnnotations().get("system"));
+        assertEquals("major", alertManagerPayload.getAnnotations().get("priority"));
+        assertEquals("StreamTitle", alertManagerPayload.getAnnotations().get("stream_title"));
+        assertEquals(triggeredAt.toString(), alertManagerPayload.getAnnotations().get("triggered_at"));
+        assertEquals("aDescription", alertManagerPayload.getAnnotations().get("triggered_rule_description"));
+        assertEquals("aTitle", alertManagerPayload.getAnnotations().get("triggered_rule_title"));
+        assertEquals(7, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithoutCustomAnnotations() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn("");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals(0, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithOneCustomAnnotation() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn("level: critical");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("critical", alertManagerPayload.getAnnotations().get("level"));
+        assertEquals(1, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithStrangeNotatedCustomAnnotations() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations")).thenReturn(";level;;;system=production=staging;;");
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                                                                            .withConfiguration(configuration)
+                                                                            .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("", alertManagerPayload.getAnnotations().get("level"));
+        assertEquals("production=staging", alertManagerPayload.getAnnotations().get("system"));
+        assertEquals(2, alertManagerPayload.getAnnotations().size());
     }
 }

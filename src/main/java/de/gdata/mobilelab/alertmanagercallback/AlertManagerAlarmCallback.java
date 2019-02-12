@@ -12,11 +12,17 @@ import org.graylog2.plugin.configuration.fields.ConfigurationField.Optional;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.streams.Stream;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
 public class AlertManagerAlarmCallback implements AlarmCallback {
+
+    static final String CONFIGURATION_KEY_API_URL = "alertmanager_api_url";
+    static final String CONFIGURATION_KEY_ALERT_NAME = "alertmanager_alert_name";
+    static final String CONFIGURATION_KEY_CUSTOM_LABELS = "alertmanager_custom_labels";
+    static final String CONFIGURATION_KEY_CUSTOM_ANNOTATIONS = "alertmanager_custom_annotations";
 
     private Configuration configuration;
     private AlertManagerPostRequestSender alertManagerPostRequestSender;
@@ -24,7 +30,7 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
     @Override
     public void initialize(Configuration config) throws AlarmCallbackConfigurationException {
         configuration = config;
-        alertManagerPostRequestSender = new AlertManagerPostRequestSender(config.getString("alertmanager_api_url"));
+        alertManagerPostRequestSender = new AlertManagerPostRequestSender(config.getString(CONFIGURATION_KEY_API_URL));
     }
 
     @Override
@@ -44,7 +50,7 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
 
         // API URL
         ConfigurationField alertmanagerApiUrl = new TextField(
-                "alertmanager_api_url",
+                CONFIGURATION_KEY_API_URL,
                 "AlertManager API URL",
                 "http://localhost:9093/api/v1/alerts",
                 "This callback sends a POST-Request to an AlertManager API. It converts the information into a format which is readable by the AlertManager.",
@@ -54,13 +60,33 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
 
         // Alert Name
         ConfigurationField alertName = new TextField(
-                "alertmanager_alert_name",
+                CONFIGURATION_KEY_ALERT_NAME,
                 "AlertManager Alert Name",
                 "TestAlert",
                 "The name for the specific AlertManager alert (will be transmitted as 'alertname'-label).",
                 Optional.NOT_OPTIONAL
         );
         configurationRequest.addField(alertName);
+
+        // Custom labels
+        ConfigurationField customLabels = new TextField(
+                CONFIGURATION_KEY_CUSTOM_LABELS,
+                "Custom AlertManager labels",
+                "",
+                "The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "label2=value2'",
+                Optional.OPTIONAL
+        );
+        configurationRequest.addField(customLabels);
+
+        // Custom annotations
+        ConfigurationField customAnnotations = new TextField(
+                CONFIGURATION_KEY_CUSTOM_ANNOTATIONS,
+                "Custom AlertManager annotations",
+                "",
+                "The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "annotation2=value2'",
+                Optional.OPTIONAL
+        );
+        configurationRequest.addField(customAnnotations);
 
         return configurationRequest;
     }
@@ -77,14 +103,34 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
 
     @Override
     public void checkConfiguration() throws ConfigurationException {
-        String apiUrl = configuration.getString("alertmanager_api_url");
+        final String apiUrl = configuration.getString(CONFIGURATION_KEY_API_URL);
         if (apiUrl == null) {
             throw new ConfigurationException("AlertManager API URL has to be set.");
         }
+
         try {
             new URI(apiUrl);
         } catch (URISyntaxException e) {
             throw new ConfigurationException("The URL: '" + apiUrl + "' is not a valid URL. " + e.getMessage());
+        }
+
+
+        CustomPropertiesTextFieldParser customPropertiesTextFieldParser = new CustomPropertiesTextFieldParser();
+
+        final String customLabels = configuration.getString(CONFIGURATION_KEY_CUSTOM_LABELS);
+        try {
+            customPropertiesTextFieldParser.extractKeyValuePairsFromCustomField(customLabels);
+        } catch (IOException e) {
+            // Not a valid configuration for custom labels
+            throw new ConfigurationException("The format for given custom labels is invalid. " + e.getMessage());
+        }
+
+        final String customAnnotations = configuration.getString(CONFIGURATION_KEY_CUSTOM_ANNOTATIONS);
+        try {
+            customPropertiesTextFieldParser.extractKeyValuePairsFromCustomField(customAnnotations);
+        } catch (IOException e) {
+            // Not a valid configuration for custom labels
+            throw new ConfigurationException("The format for given custom annotations is invalid. " + e.getMessage());
         }
     }
 }
