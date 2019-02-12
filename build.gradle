@@ -33,12 +33,14 @@ targetCompatibility = 1.8
 
 
 repositories {
-    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
     maven { url 'http://repo.spring.io/plugins-release/'}
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.graylog2/graylog2-plugin
+    // https://mvnrepository.com/artifact/org.graylog2/graylog2-server
     compile group: 'org.graylog2', name: 'graylog2-server', version: '2.5.0'
 
     // https://mvnrepository.com/artifact/org.jboss.dashboard-builder/dashboard-builder-bom
@@ -81,5 +83,14 @@ jar {
                 'Build-Time': new Date().format("yyy-MM-dd HH:mm:ss"),
                 'Graylog-Plugin-Properties-Path': 'de.gdata.mobilelab.alertmanagercallback.graylog-plugin-alertmanagercallback'
         )
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+        csv.enabled false
+        html.enabled false
     }
 }

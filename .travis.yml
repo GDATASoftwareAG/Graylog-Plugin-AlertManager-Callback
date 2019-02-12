@@ -8,9 +8,7 @@ services:
 install:
   - ./gradlew build -x check --no-daemon
 
+script: ./gradlew check javadoc --no-daemon && ./gradlew jacocoTestReport
 
-jobs:
-  include:
-    - stage: test
-      env: [ NAME=functionallity ]
-      script: ./gradlew check javadoc --no-daemon
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
