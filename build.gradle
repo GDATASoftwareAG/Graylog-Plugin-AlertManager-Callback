@@ -26,7 +26,7 @@ serviceLoader {
 }
 
 group = 'de.gdata.mobilelab'
-version = 0.1
+version = 1.0
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -74,7 +74,7 @@ dependencies {
 jar {
     archiveName = "graylog-plugin-alertmanagercallback-" + version + ".jar"
     baseName = title
-    version = 0.1
+    version = 1.0
     group = "de.gdata.mobilelab.alertmanagercallback"
     manifest {
         attributes(

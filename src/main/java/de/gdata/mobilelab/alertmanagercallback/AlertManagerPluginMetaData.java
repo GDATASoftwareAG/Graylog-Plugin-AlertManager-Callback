@@ -32,7 +32,7 @@ public class AlertManagerPluginMetaData implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return Version.from(0, 1, 0);
+        return Version.from(1, 0, 0);
     }
 
     @Override
