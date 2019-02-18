@@ -31,8 +31,8 @@ public class AlertManagerAlarmCallbackTest {
         alertManagerAlarmCallback.initialize(configuration);
 
         // then: alertManagerAlarmCallback should have been correctly initialized
-        // Check that ObjectMapper is not null
-        Field field = AlertManagerAlarmCallback.class.getDeclaredField("objectMapper");
+        // Check that alertManagerPostRequestSender is not null
+        Field field = AlertManagerAlarmCallback.class.getDeclaredField("alertManagerPostRequestSender");
         field.setAccessible(true);
         assertNotNull(field.get(alertManagerAlarmCallback));
 
@@ -51,7 +51,7 @@ public class AlertManagerAlarmCallbackTest {
         ConfigurationRequest configurationRequest = alertManagerAlarmCallback.getRequestedConfiguration();
 
         // then: text fields have been set
-        assertEquals(2, configurationRequest.getFields().size());
+        assertEquals(4, configurationRequest.getFields().size());
 
         ConfigurationField field = configurationRequest.getField("alertmanager_api_url");
         assertNotNull(field);
@@ -69,6 +69,22 @@ public class AlertManagerAlarmCallbackTest {
         assertEquals("TestAlert", field.getDefaultValue());
         assertEquals("The name for the specific AlertManager alert (will be transmitted as 'alertname'-label).", field.getDescription());
         assertEquals(ConfigurationField.Optional.NOT_OPTIONAL, field.isOptional());
+
+        field = configurationRequest.getField("alertmanager_custom_labels");
+        assertNotNull(field);
+        assertEquals(TextField.FIELD_TYPE, field.getFieldType());
+        assertEquals("Custom AlertManager labels", field.getHumanName());
+        assertEquals("", field.getDefaultValue());
+        assertEquals("The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "label2=value2'", field.getDescription());
+        assertEquals(ConfigurationField.Optional.OPTIONAL, field.isOptional());
+
+        field = configurationRequest.getField("alertmanager_custom_annotations");
+        assertNotNull(field);
+        assertEquals(TextField.FIELD_TYPE, field.getFieldType());
+        assertEquals("Custom AlertManager annotations", field.getHumanName());
+        assertEquals("", field.getDefaultValue());
+        assertEquals("The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "annotation2=value2'", field.getDescription());
+        assertEquals(ConfigurationField.Optional.OPTIONAL, field.isOptional());
     }
 
     @Test
