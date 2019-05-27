@@ -31,6 +31,11 @@ version = 1.0
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+task version {
+    doFirst {
+        println(version)
+    }
+}
 
 repositories {
     maven {
@@ -74,7 +79,6 @@ dependencies {
 jar {
     archiveName = "graylog-plugin-alertmanagercallback-" + version + ".jar"
     baseName = title
-    version = 1.0
     group = "de.gdata.mobilelab.alertmanagercallback"
     manifest {
         attributes(

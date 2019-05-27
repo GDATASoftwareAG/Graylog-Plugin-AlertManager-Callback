@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 services:
   - docker
@@ -12,3 +12,19 @@ script: ./gradlew check javadoc --no-daemon && ./gradlew jacocoTestReport
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+before_deploy:
+  - ./gradlew clean
+  - ./gradlew jar
+  - export RELEASEVERSION="v$(./gradlew version -q)"
+
+deploy:
+  - provider: releases
+    api_key: "$GH_TOKEN"
+    file_glob: true
+    file: "build/libs/*"
+    skip_cleanup: true
+    name: $RELEASEVERSION
+    on:
+      branch: master
+      jdk: openjdk8
