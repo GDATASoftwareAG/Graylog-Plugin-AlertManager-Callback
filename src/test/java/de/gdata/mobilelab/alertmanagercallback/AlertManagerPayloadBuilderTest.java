@@ -10,12 +10,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -471,5 +466,60 @@ public class AlertManagerPayloadBuilderTest {
         assertEquals("", alertManagerPayload.getAnnotations().get("level"));
         assertEquals("production=staging", alertManagerPayload.getAnnotations().get("system"));
         assertEquals(2, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithCustomTemplateAnnotations() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations"))
+                .thenReturn(
+                        "mystreamtitle=${stream.title};"
+                                + "myresultdesc=${check_result.resultDescription};"
+                                + "mytriggeredat=${check_result.triggeredAt};"
+                                + "mystreamid=${stream.id};"
+                                + "mystreamdescription=${stream.description};"
+                                + "myalertconditiontitle=${alertCondition.title};"
+                                + "myalertconditiondesc=${alertCondition.description};"
+                                + "mytriggeredcondition=${check_result.triggeredCondition};"
+                );
+
+        // and: stream mock
+        Stream stream = mock(Stream.class);
+        when(stream.getTitle()).thenReturn("StreamTitle");
+        when(stream.getId()).thenReturn("StreamId");
+        when(stream.getDescription()).thenReturn("StreamDescription");
+
+        // and: checkResult mock
+        AlertCondition.CheckResult checkResult = mock(AlertCondition.CheckResult.class);
+        DateTime triggeredAt = new DateTime();
+        when(checkResult.getTriggeredAt()).thenReturn(triggeredAt);
+        when(checkResult.getResultDescription()).thenReturn("CheckResultResultDescription");
+        AlertCondition alertCondition = mock(AlertCondition.class);
+        when(alertCondition.toString()).thenReturn("TriggeredConditionString");
+        when(alertCondition.getDescription()).thenReturn("AlertDescription");
+        when(alertCondition.getTitle()).thenReturn("AlertTitle");
+        when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
+
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                .withConfiguration(configuration)
+                .withStream(stream)
+                .withCheckResult(checkResult)
+                .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("StreamTitle", alertManagerPayload.getAnnotations().get("mystreamtitle"));
+        assertEquals("CheckResultResultDescription", alertManagerPayload.getAnnotations().get("myresultdesc"));
+        assertNotNull(alertManagerPayload.getAnnotations().get("mytriggeredat"));
+        assertNotEquals("", alertManagerPayload.getAnnotations().get("mytriggeredat"));
+        assertEquals("StreamId", alertManagerPayload.getAnnotations().get("mystreamid"));
+        assertEquals("StreamDescription", alertManagerPayload.getAnnotations().get("mystreamdescription"));
+        assertEquals("AlertTitle", alertManagerPayload.getAnnotations().get("myalertconditiontitle"));
+        assertEquals("AlertDescription", alertManagerPayload.getAnnotations().get("myalertconditiondesc"));
+        assertEquals("TriggeredConditionString", alertManagerPayload.getAnnotations().get("mytriggeredcondition"));
+        assertEquals(12, alertManagerPayload.getAnnotations().size());
     }
 }
