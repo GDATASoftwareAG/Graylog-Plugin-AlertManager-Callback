@@ -1,3 +1,7 @@
+env:
+  global:
+    - secure: "Lg62XJ37QrlTg78/5TtTBx3geUCbVPwfMAAh6Yz+vaGCa8K0KS/k8PeiFwyo6eg6rz1/Zn+JwrQfsjQlYLGtvisy+jc5EwPPzSf2eVUmCUY6JwaeC8266c1jW+xNEW6pJQZfjKnn5lx5q4IjGCrLK9D4MpJX6ecbDo7Cy8d9klbv3ttTnZfI9vQh+L11NaNviKrqu0T2aCD+YtvQfqo9YF0CQFp8sQF8csg82p5r9iPswnpSSh3Eil5+BH072WZvMp8LIZm4fpzfHwl7BrePnrSQ9DY9aQETqLqkRl8cNnLoRcVLTSVjZurU2edW4rH0qtpE8rPkz8oS1pxsUvHotZIUhGV5Jonrif0z6AatC+fT9VtQgTxDXQfL3NedXfFvLzGmR09ApGPI3Oh7e1pZfNBOhA+gOGoYlPhscAtp1x2FwzEZ6Vk3ElrkX7dexuYeuwkbDx6luyDibM1iF7fCTxF8x0FgBUrn6w2TDv6CAYz6E4xiKiKGfIeUe6r6hEk4hdVEAQkU6yhkOx7VvESc5d4RVMtsS+XJOgsUnaJ95YybQS/xbBrbi5GGjRYOJrXc+FnYrBfOS6j0AIdKLgA69iBGwWKkn+JN5DranQ3e+umlFFUHWqNSNS5dPsvFqRBpGD5sJH49y/+Gb6ysmpocnULC5IA0pSBaygpYhnN9Pdo="
+
 language: java
 jdk:
   - openjdk8
@@ -6,25 +10,27 @@ services:
   - docker
 
 install:
-  - ./gradlew build -x check --no-daemon
+  - "./gradlew build -x check --no-daemon"
 
-script: ./gradlew check javadoc --no-daemon && ./gradlew jacocoTestReport
+script: "./gradlew check javadoc --no-daemon && ./gradlew jacocoTestReport"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  - ./gradlew clean
-  - ./gradlew jar
+  - "./gradlew clean"
+  - "./gradlew jar"
   - export RELEASEVERSION="v$(./gradlew version -q)"
 
 deploy:
-  - provider: releases
-    api_key: "$GH_TOKEN"
-    file_glob: true
-    file: "build/libs/*"
-    skip_cleanup: true
-    name: $RELEASEVERSION
-    on:
-      branch: master
-      jdk: openjdk8
+  provider: releases
+  api_key:
+    secure: XhpUGepnym2aOwF7dz2itljhBJWXhLH3vhfQlxyzUf8Af20gdSDtyMSKUvoDSHM9I/E8J7S6na2FX7nE/etZ9NRCTXRkpTlZo8jbBp/dUiEinqWkxvtk4U04PdGXBViOwQ+iebkV28AXr0TlC3+fH1ODvJ0xYK1FUochYTQSMZEUw+N+RqsgnCX1FW8+VT5zp5RfxWNu0tr/h5I8ZDczWZxbo6GTJCwtOWKZdHi7rE7qv9sV4eiVUeaer499a+y8E7f+94ETo7lP0W89jJoV6bHuP3AqUKibFUWEpY4D6AeUicQdfzkWVox+Q9c64ISZ6MvQpsRIacwVQKFMgADolj56f/tFF7kqzzXccMIi4znkbu467sGH7KD1dh0ih7VOXZUmT8jffGsXsMH8Ewup01J173L5txQjXpPQIkFV2ZEOGvfNnfngfuc1Rl2xadNHsTt8pgq1XJS/JdJ3829b1tSXk1Gv5XxgHQmcC/aWd/34u3MQlqcCUVONrGv9KBtZIfh7CRPjieW5Opjg58gylZ0J+U1QWE9BW2SUCsLf6U4pYOOradUxAIXi1EH22GJZ5QznzIjJGTZWH8fWobfQ5MrD7tESE+maK783PhRGewYjbXJz2M20j6VuqrPLsjfgZl4+wTjUgtaOFCBNEdzRcAuEUrQTlEpqBEnlmm67Z3g=
+  file_glob: true
+  file: "build/libs/*"
+  skip_cleanup: true
+  name: $RELEASEVERSION
+  on:
+    repo: GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback
+    branch: master
+    jdk: openjdk8
