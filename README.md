@@ -31,7 +31,7 @@ The values `startsAt`, `endsAt` and `generatorURL` will be transmitted to the Al
 Additionally you can configure your own custom annotations and labels which should be submitted to the AlertManager (see screenshot below).
 
 ## How to deploy on Graylog
-You can easily build the plugin by executing `./gradlew build`. 
+You can easily build the plugin by executing `./gradlew build -x check --no-daemon`. 
 Afterwards there should be a `.jar` file inside the `build/libs/` directory.
 Follow the instructions mentioned [here](http://docs.graylog.org/en/2.4/pages/plugins.html#installing-and-loading-plugins) to deploy this `.jar` file.
 
