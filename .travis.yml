@@ -20,7 +20,10 @@ after_success:
 before_deploy:
   - "./gradlew clean"
   - "./gradlew jar"
+  - git config --local user.name $GH_USER_NAME
+  - git config --local user.email $GH_USER_EMAIL
   - export RELEASEVERSION="v$(./gradlew version -q)"
+  - git tag $NAME
 
 deploy:
   provider: releases
@@ -29,6 +32,7 @@ deploy:
   file_glob: true
   file: "build/libs/*"
   skip_cleanup: true
+  overwrite: true
   name: $RELEASEVERSION
   on:
     repo: GDATASoftwareAG/Graylog-Plugin-AlertManager-Callback
