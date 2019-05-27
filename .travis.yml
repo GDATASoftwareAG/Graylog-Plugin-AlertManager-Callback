@@ -22,7 +22,7 @@ before_deploy:
   - "./gradlew jar"
   - git config --local user.name $GH_USER_NAME
   - git config --local user.email $GH_USER_EMAIL
-  - export RELEASEVERSION="v$(./gradlew version -q)"
+  - export RELEASEVERSION="$(./gradlew version -q)"
   - git tag $NAME
 
 deploy:
