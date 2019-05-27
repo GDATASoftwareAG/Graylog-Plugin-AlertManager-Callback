@@ -1,3 +1,7 @@
+V 1.1
+-----------
+* Added release artifact to GitHub releases
+
 V 1.0
 -----------
 * Added possibility to pass custom labels and annotations to the AlertManager
