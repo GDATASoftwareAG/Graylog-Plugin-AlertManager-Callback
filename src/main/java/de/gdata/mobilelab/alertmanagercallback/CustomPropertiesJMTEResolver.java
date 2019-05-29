@@ -1,6 +1,7 @@
 package de.gdata.mobilelab.alertmanagercallback;
 
 import com.floreysoft.jmte.Engine;
+
 import org.graylog2.plugin.Message;
 import org.graylog2.plugin.MessageSummary;
 import org.graylog2.plugin.alarms.AlertCondition;
@@ -18,7 +19,7 @@ class CustomPropertiesJMTEResolver {
     private Map<String, Object> templateModel;
 
     private CustomPropertiesJMTEResolver(Map<String, Object> templateModel) {
-        templateEngine = new Engine();
+        templateEngine = Engine.createEngine();
         this.templateModel = templateModel;
     }
 
