@@ -1,21 +1,13 @@
 package de.gdata.mobilelab.alertmanagercallback;
 
-import com.floreysoft.jmte.Engine;
-import org.graylog2.plugin.Message;
-import org.graylog2.plugin.MessageSummary;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.streams.Stream;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.MoreObjects.firstNonNull;
 
 class AlertManagerPayloadBuilder {
 
@@ -25,12 +17,10 @@ class AlertManagerPayloadBuilder {
     private AlertCondition.CheckResult checkResult;
     private Configuration configuration;
     private CustomPropertiesTextFieldParser customPropertiesTextFieldParser;
-    private Engine templateEngine;
 
     private AlertManagerPayloadBuilder() {
         // Private constructor to hide the implicit one
         customPropertiesTextFieldParser = new CustomPropertiesTextFieldParser();
-        templateEngine = new Engine();
     }
 
     static AlertManagerPayloadBuilder newInstance() {
@@ -39,43 +29,38 @@ class AlertManagerPayloadBuilder {
 
     AlertManagerPayloadBuilder withStream(Stream stream) {
         this.stream = stream;
-
         return this;
     }
 
     AlertManagerPayloadBuilder withCheckResult(AlertCondition.CheckResult checkResult) {
         this.checkResult = checkResult;
-
         return this;
     }
 
     AlertManagerPayloadBuilder withConfiguration(Configuration configuration) {
         this.configuration = configuration;
-
         return this;
     }
 
-    // parts copied from org.graylog2.alerts.FormattedEmailAlertSender#getModel()
-    private Map<String, Object> createModel(Stream stream, AlertCondition.CheckResult checkResult, List<Message> backlog) {
-        Map<String, Object> model = new HashMap<>();
-        model.put("stream", stream);
-        model.put("check_result", checkResult);
-        model.put("stream_url", extractStreamUrl());
-        model.put("alertCondition", checkResult.getTriggeredCondition());
-
-        final List<Message> messages = firstNonNull(backlog, Collections.emptyList());
-        model.put("backlog", messages);
-        model.put("backlog_size", messages.size());
-
-        return model;
-    }
-
     AlertManagerPayload build() {
-
-
         AlertManagerPayload alertManagerPayload = new AlertManagerPayload();
-        alertManagerPayload.setAnnotations(extractAnnotations());
-        alertManagerPayload.setLabels(extractLabels());
+
+        Map<String, Object> annotations = extractAnnotations();
+        Map<String, Object> labels = extractLabels();
+
+        // Replace template values such as '${stream.description}'
+        CustomPropertiesJMTEResolver jmteResolver = CustomPropertiesJMTEResolver.Builder.newBuilder()
+                .withCheckResult(checkResult)
+                .withStream(stream)
+                .withUrl(extractStreamUrl())
+                .build();
+
+        annotations = jmteResolver.transformTemplateValues(annotations);
+        labels = jmteResolver.transformTemplateValues(labels);
+
+        alertManagerPayload.setAnnotations(annotations);
+        alertManagerPayload.setLabels(labels);
+
         alertManagerPayload.setGeneratorURL(extractStreamUrl());
         alertManagerPayload.setStartsAt(extractStartsAt());
         alertManagerPayload.setEndsAt(extractEndsAt());
@@ -99,33 +84,7 @@ class AlertManagerPayloadBuilder {
             // damaged configuration, so we'll not put any additional label into the map
         }
 
-        transformTemplateValues(labels);
-
         return labels;
-    }
-
-    private void transformTemplateValues(Map<String, Object> customValueMap) {
-        customValueMap.entrySet().forEach(
-                entry -> {
-                        try {
-                            if (entry.getValue() != null) {
-                                String valueAsString = (String) entry.getValue();
-                                entry.setValue(templateEngine.transform(
-                                        valueAsString,
-                                        createModel(
-                                                stream,
-                                                checkResult,
-                                                checkResult.getMatchingMessages().stream()
-                                                        .map(MessageSummary::getRawMessage)
-                                                        .collect(Collectors.toList())
-                                        )
-                                ));
-                            }
-                        } catch (Exception ex) {
-                            // Just catch exceptions for bad formatting or direct values which should not be formatted
-                        }
-                }
-        );
     }
 
     private Map<String, Object> extractAnnotations() {
@@ -150,8 +109,6 @@ class AlertManagerPayloadBuilder {
         } catch (IOException e) {
             // damaged configuration, so we'll not put any additional annotation into the map
         }
-
-        transformTemplateValues(annotations);
 
         return annotations;
     }
