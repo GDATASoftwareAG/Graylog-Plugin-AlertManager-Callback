@@ -1,16 +1,26 @@
 package de.gdata.mobilelab.alertmanagercallback;
 
+import org.graylog2.plugin.Message;
+import org.graylog2.plugin.MessageSummary;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.streams.Stream;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -482,6 +492,7 @@ public class AlertManagerPayloadBuilderTest {
                                 + "myalertconditiontitle=${alertCondition.title};"
                                 + "myalertconditiondesc=${alertCondition.description};"
                                 + "mytriggeredcondition=${check_result.triggeredCondition};"
+                                + "myMessageBacklog=${if backlog}${foreach backlog message}${message.message} ${end}${else}<No Backlog>${end};"
                 );
 
         // and: stream mock
@@ -502,6 +513,18 @@ public class AlertManagerPayloadBuilderTest {
         when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
 
 
+        // Message Mocks
+        Message messageOne = new Message("messageOne", "source", new DateTime(2015, 1, 1, 0, 0, DateTimeZone.UTC));
+        Message messageTwo = new Message("messageTwo", "source", new DateTime(2015, 1, 1, 0, 0, DateTimeZone.UTC));
+        MessageSummary messageSummaryOne = mock(MessageSummary.class);
+        MessageSummary messageSummaryTwo = mock(MessageSummary.class);
+        List<MessageSummary> messageSummaryList = Arrays.asList(messageSummaryOne, messageSummaryTwo);
+        when(messageSummaryOne.getRawMessage()).thenReturn(messageOne);
+        when(messageSummaryTwo.getRawMessage()).thenReturn(messageTwo);
+        when(checkResult.getMatchingMessages()).thenReturn(messageSummaryList);
+
+
+
         // and: instance with set mocks as values
         AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
                 .withConfiguration(configuration)
@@ -520,6 +543,63 @@ public class AlertManagerPayloadBuilderTest {
         assertEquals("AlertTitle", alertManagerPayload.getAnnotations().get("myalertconditiontitle"));
         assertEquals("AlertDescription", alertManagerPayload.getAnnotations().get("myalertconditiondesc"));
         assertEquals("TriggeredConditionString", alertManagerPayload.getAnnotations().get("mytriggeredcondition"));
-        assertEquals(12, alertManagerPayload.getAnnotations().size());
+        assertEquals("messageOne messageTwo ", alertManagerPayload.getAnnotations().get("myMessageBacklog"));
+        assertEquals(13, alertManagerPayload.getAnnotations().size());
+    }
+
+    @Test
+    public void buildWithCustomTemplateAnnotationsWithoutMessageBacklog() {
+        // given: configuration mock
+        Configuration configuration = mock(Configuration.class);
+        when(configuration.getString("alertmanager_custom_annotations"))
+                .thenReturn(
+                        "mystreamtitle=${stream.title};"
+                                + "myresultdesc=${check_result.resultDescription};"
+                                + "mytriggeredat=${check_result.triggeredAt};"
+                                + "mystreamid=${stream.id};"
+                                + "mystreamdescription=${stream.description};"
+                                + "myalertconditiontitle=${alertCondition.title};"
+                                + "myalertconditiondesc=${alertCondition.description};"
+                                + "mytriggeredcondition=${check_result.triggeredCondition};"
+                                + "myMessageBacklog=${if backlog}${foreach backlog message}${message.message} ${end}${else}<No Backlog>${end};"
+                );
+
+        // and: stream mock
+        Stream stream = mock(Stream.class);
+        when(stream.getTitle()).thenReturn("StreamTitle");
+        when(stream.getId()).thenReturn("StreamId");
+        when(stream.getDescription()).thenReturn("StreamDescription");
+
+        // and: checkResult mock
+        AlertCondition.CheckResult checkResult = mock(AlertCondition.CheckResult.class);
+        DateTime triggeredAt = new DateTime();
+        when(checkResult.getTriggeredAt()).thenReturn(triggeredAt);
+        when(checkResult.getResultDescription()).thenReturn("CheckResultResultDescription");
+        AlertCondition alertCondition = mock(AlertCondition.class);
+        when(alertCondition.toString()).thenReturn("TriggeredConditionString");
+        when(alertCondition.getDescription()).thenReturn("AlertDescription");
+        when(alertCondition.getTitle()).thenReturn("AlertTitle");
+        when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
+
+        // and: instance with set mocks as values
+        AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
+                .withConfiguration(configuration)
+                .withStream(stream)
+                .withCheckResult(checkResult)
+                .build();
+
+        // expect: correct values set
+        // - annotations
+        assertEquals("StreamTitle", alertManagerPayload.getAnnotations().get("mystreamtitle"));
+        assertEquals("CheckResultResultDescription", alertManagerPayload.getAnnotations().get("myresultdesc"));
+        assertNotNull(alertManagerPayload.getAnnotations().get("mytriggeredat"));
+        assertNotEquals("", alertManagerPayload.getAnnotations().get("mytriggeredat"));
+        assertEquals("StreamId", alertManagerPayload.getAnnotations().get("mystreamid"));
+        assertEquals("StreamDescription", alertManagerPayload.getAnnotations().get("mystreamdescription"));
+        assertEquals("AlertTitle", alertManagerPayload.getAnnotations().get("myalertconditiontitle"));
+        assertEquals("AlertDescription", alertManagerPayload.getAnnotations().get("myalertconditiondesc"));
+        assertEquals("TriggeredConditionString", alertManagerPayload.getAnnotations().get("mytriggeredcondition"));
+        assertEquals("<No Backlog>", alertManagerPayload.getAnnotations().get("myMessageBacklog"));
+        assertEquals(13, alertManagerPayload.getAnnotations().size());
     }
 }
