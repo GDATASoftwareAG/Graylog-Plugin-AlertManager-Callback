@@ -29,6 +29,15 @@ The values `startsAt`, `endsAt` and `generatorURL` will be transmitted to the Al
 `endsAt` will be set to the point of time when the condition triggered the alert plus the set grace time which is configured for the alert.
 
 Additionally you can configure your own custom annotations and labels which should be submitted to the AlertManager (see screenshot below).
+You can use the [JMTE Template](https://cdn.rawgit.com/DJCordhose/jmte/master/doc/index.html) as you might already know from the [Graylog E-Mail Notification Callback](http://docs.graylog.org/en/2.5/pages/streams/alerts.html#email-alert-notification).
+
+List of provided keys you can use inside JMTE Templates:
+* `stream_url` - The stream url.
+* `stream` - The specific stream object. There you can use the properties of the stream object e.g. `stream.title`
+* `alertCondition` - The specific triggered alert condition. There you can use the properties of the alert condition oject e.g. `alertCondition.createdAt`
+* `check_result` - The specific check result. There you can use the properties of the check result object e.g. `check_result.triggeredAt`
+* `backlog` - A list containing messages matching the triggered condition if any. You can iterate through them with `${foreach backlog message}${message} ${end}`
+* `backlog_size` - The amount of matching messages.
 
 ## How to deploy on Graylog
 You can easily build the plugin by executing `./gradlew build -x check --no-daemon`. 

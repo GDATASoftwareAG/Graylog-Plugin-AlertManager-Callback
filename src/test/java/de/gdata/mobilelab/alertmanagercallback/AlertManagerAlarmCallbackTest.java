@@ -11,9 +11,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +73,7 @@ public class AlertManagerAlarmCallbackTest {
         assertEquals(TextField.FIELD_TYPE, field.getFieldType());
         assertEquals("Custom AlertManager labels", field.getHumanName());
         assertEquals("", field.getDefaultValue());
-        assertEquals("The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "label2=value2'", field.getDescription());
+        assertEquals("The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "label2=value2" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "streamtitle=${stream.title}'. You can use the JMTE-Template annotation within values of your custom labels to get live information from triggered alert.", field.getDescription());
         assertEquals(ConfigurationField.Optional.OPTIONAL, field.isOptional());
 
         field = configurationRequest.getField("alertmanager_custom_annotations");
@@ -83,7 +81,7 @@ public class AlertManagerAlarmCallbackTest {
         assertEquals(TextField.FIELD_TYPE, field.getFieldType());
         assertEquals("Custom AlertManager annotations", field.getHumanName());
         assertEquals("", field.getDefaultValue());
-        assertEquals("The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "annotation2=value2'", field.getDescription());
+        assertEquals("The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "annotation2=value2" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "streamtitle=${stream.title}'. You can use the JMTE-Template annotation within values of your custom annotations to get live information from triggered alert.", field.getDescription());
         assertEquals(ConfigurationField.Optional.OPTIONAL, field.isOptional());
     }
 

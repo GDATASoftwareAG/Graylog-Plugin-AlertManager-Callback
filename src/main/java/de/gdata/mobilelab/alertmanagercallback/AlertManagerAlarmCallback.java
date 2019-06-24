@@ -73,7 +73,9 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
                 CONFIGURATION_KEY_CUSTOM_LABELS,
                 "Custom AlertManager labels",
                 "",
-                "The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "label2=value2'",
+                "The custom AlertManager label key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR
+                        + "' to set for each alert. Please use the following notation: 'label1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR
+                        + "label2=value2"+ CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "streamtitle=${stream.title}'. You can use the JMTE-Template annotation within values of your custom labels to get live information from triggered alert.",
                 Optional.OPTIONAL
         );
         configurationRequest.addField(customLabels);
@@ -83,7 +85,9 @@ public class AlertManagerAlarmCallback implements AlarmCallback {
                 CONFIGURATION_KEY_CUSTOM_ANNOTATIONS,
                 "Custom AlertManager annotations",
                 "",
-                "The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "annotation2=value2'",
+                "The custom AlertManager annotation key-value-pairs separated by '" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR
+                        + "' to set for each alert. Please use the following notation: 'annotation1=value1" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR
+                        + "annotation2=value2" + CustomPropertiesTextFieldParser.KEY_VALUE_PAIR_SEPARATOR + "streamtitle=${stream.title}'. You can use the JMTE-Template annotation within values of your custom annotations to get live information from triggered alert.",
                 Optional.OPTIONAL
         );
         configurationRequest.addField(customAnnotations);
