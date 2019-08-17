@@ -157,7 +157,7 @@ public class AlertManagerPayloadBuilderTest {
         assertEquals(triggeredAt.toString(), alertManagerPayload.getStartsAt());
 
         // - endsAt
-        assertEquals(triggeredAt.plusMinutes(1337).toString(), alertManagerPayload.getEndsAt());
+        assertEquals(triggeredAt.plusMinutes(1337).plusSeconds(10).toString(), alertManagerPayload.getEndsAt());
 
         // - generatorUrl
         assertEquals("aStreamUrl", alertManagerPayload.getGeneratorURL());
@@ -216,6 +216,8 @@ public class AlertManagerPayloadBuilderTest {
         AlertCondition alertCondition = mock(AlertCondition.class);
         when(alertCondition.getGrace()).thenReturn(0);
         when(checkResult.getTriggeredCondition()).thenReturn(alertCondition);
+        DateTime triggeredAt = new DateTime();
+        when(checkResult.getTriggeredAt()).thenReturn(triggeredAt);
 
         // and: instance with set mocks as values
         AlertManagerPayload alertManagerPayload = AlertManagerPayloadBuilder.newInstance()
@@ -226,6 +228,7 @@ public class AlertManagerPayloadBuilderTest {
         // - endsAt
         assertNotNull(alertManagerPayload.getEndsAt());
         assertNotEquals("", alertManagerPayload.getEndsAt());
+        assertEquals(triggeredAt.plusMinutes(1).plusSeconds(10).toString(), alertManagerPayload.getEndsAt());
     }
 
     @Test

@@ -118,7 +118,16 @@ class AlertManagerPayloadBuilder {
             return new DateTime().plusMinutes(1).toString();
         }
 
-        return checkResult.getTriggeredAt().plusMinutes(checkResult.getTriggeredCondition().getGrace()).toString();
+        int delay = checkResult.getTriggeredCondition().getGrace();
+
+        // when grace is 0, the next alert isn't for another minute
+        if(delay == 0) {
+            delay += 1;
+        }
+
+        // give a small window to avoid alerts expiring due to the notification
+        // not being sent exactly on time
+        return checkResult.getTriggeredAt().plusMinutes(delay).plusSeconds(10).toString();
     }
 
     private String extractStartsAt() {
