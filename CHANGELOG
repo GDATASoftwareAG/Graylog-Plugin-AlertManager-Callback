@@ -1,3 +1,7 @@
+V 1.2.1
+-----------
+* Fixed alerts with zero grace time
+
 V 1.2
 -----------
 * Added JMTE-Template resolving to values for custom labels and annotations
