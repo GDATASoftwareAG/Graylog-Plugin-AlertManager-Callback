@@ -62,4 +62,4 @@ See [LICENSE](LICENSE)
 
 ## Copyright
 
-Copyright (c) 2019 G DATA Software AG and other authors.
+Copyright (c) 2019 G DATA CyberDefense AG and other authors.

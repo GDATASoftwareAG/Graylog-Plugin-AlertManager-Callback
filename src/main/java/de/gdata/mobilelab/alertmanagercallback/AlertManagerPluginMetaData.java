@@ -22,7 +22,7 @@ public class AlertManagerPluginMetaData implements PluginMetaData {
 
     @Override
     public String getAuthor() {
-        return "G DATA Software AG";
+        return "G DATA CyberDefense AG";
     }
 
     @Override

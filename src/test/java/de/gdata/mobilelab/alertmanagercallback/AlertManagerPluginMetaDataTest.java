@@ -28,7 +28,7 @@ public class AlertManagerPluginMetaDataTest {
 
     @Test
     public void getAuthor() {
-        assertEquals("G DATA Software AG", new AlertManagerPluginMetaData().getAuthor());
+        assertEquals("G DATA CyberDefense AG", new AlertManagerPluginMetaData().getAuthor());
     }
 
     @Test
