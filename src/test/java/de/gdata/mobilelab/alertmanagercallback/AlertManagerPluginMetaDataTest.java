@@ -38,7 +38,7 @@ public class AlertManagerPluginMetaDataTest {
 
     @Test
     public void getVersion() {
-        assertEquals(Version.from(1, 2, 1), new AlertManagerPluginMetaData().getVersion());
+        assertEquals(Version.from(2, 0, 0), new AlertManagerPluginMetaData().getVersion());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class AlertManagerPluginMetaDataTest {
 
     @Test
     public void getRequiredVersion() {
-        assertEquals(Version.from(2, 5, 0), new AlertManagerPluginMetaData().getRequiredVersion());
+        assertEquals(Version.from(3, 3, 5), new AlertManagerPluginMetaData().getRequiredVersion());
     }
 
     @Test

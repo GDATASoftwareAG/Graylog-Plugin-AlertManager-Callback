@@ -1,3 +1,7 @@
+V 2.0
+-----------
+* Added support for Graylog 3.3.5
+
 V 1.2.1
 -----------
 * Fixed alerts with zero grace time
