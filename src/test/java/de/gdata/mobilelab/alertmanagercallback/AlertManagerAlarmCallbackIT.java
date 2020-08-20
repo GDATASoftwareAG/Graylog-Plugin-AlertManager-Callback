@@ -16,16 +16,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AlertManagerAlarmCallbackIT {
 
     @Rule
-    public GenericContainer alertManagerContainer = new GenericContainer("prom/alertmanager:v0.15.3")
+    public GenericContainer alertManagerContainer = new GenericContainer("prom/alertmanager:v0.20.0")
             .withExposedPorts(9093)
             .waitingFor(new HostPortWaitStrategy());
 
@@ -88,7 +86,7 @@ public class AlertManagerAlarmCallbackIT {
         // and: Alert has been triggered in AlertManager
         String alertOverview = new RestTemplate().getForObject("http://" + alertManagerContainer.getContainerIpAddress()
                                                                        + ":" + alertManagerContainer.getMappedPort(9093)
-                                                                       + "/api/v1/alerts/groups",
+                                                                       + "/api/v2/alerts/groups",
                                                                String.class);
         assertNotNull(alertOverview);
         assertTrue(alertOverview.contains("TestAlert1"));
@@ -119,7 +117,7 @@ public class AlertManagerAlarmCallbackIT {
         // and: Alert has been triggered in AlertManager
         String alertOverview = new RestTemplate().getForObject("http://" + alertManagerContainer.getContainerIpAddress()
                                                                        + ":" + alertManagerContainer.getMappedPort(9093)
-                                                                       + "/api/v1/alerts/groups",
+                                                                       + "/api/v2/alerts/groups",
                                                                String.class);
         assertNotNull(alertOverview);
         assertTrue(alertOverview.contains("TestAlert1"));

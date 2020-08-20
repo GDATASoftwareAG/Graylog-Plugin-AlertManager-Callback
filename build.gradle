@@ -26,7 +26,7 @@ serviceLoader {
 }
 
 group = 'de.gdata.mobilelab'
-version = "1.2.1"
+version = "1.2.2"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -46,44 +46,44 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.graylog2/graylog2-server
-    compile group: 'org.graylog2', name: 'graylog2-server', version: '2.5.0'
+    implementation group: 'org.graylog2', name: 'graylog2-server', version: '3.3.5'
 
     // https://mvnrepository.com/artifact/org.jboss.dashboard-builder/dashboard-builder-bom
-    compile group: 'org.jboss.dashboard-builder', name: 'dashboard-builder-bom', version: '6.5.0.Final', ext: 'pom'
+    implementation group: 'org.jboss.dashboard-builder', name: 'dashboard-builder-bom', version: '6.5.0.Final', ext: 'pom'
 
     // https://mvnrepository.com/artifact/com.google.auto.value/auto-value
-    compileOnly group: 'com.google.auto.value', name: 'auto-value', version: '1.6.3'
+    compileOnly group: 'com.google.auto.value', name: 'auto-value', version: '1.7.4'
 
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
-
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    annotationProcessor('org.projectlombok:lombok:1.18.12')
 
     // TESTS
 
     // https://mvnrepository.com/artifact/org.springframework/spring-web
-    testCompile group: 'org.springframework', name: 'spring-web', version: '5.1.4.RELEASE'
+    testImplementation group: 'org.springframework', name: 'spring-web', version: '5.2.8.RELEASE'
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    testImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
     
     // https://mvnrepository.com/artifact/org.mockito/mockito-core
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.13'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.5.0'
 
     // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
-    testCompile group: 'org.testcontainers', name: 'testcontainers', version: '1.10.5'
+    testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
 
 }
 
 jar {
-    archiveName = "graylog-plugin-alertmanagercallback-" + version + ".jar"
-    baseName = title
+    archiveFileName = "graylog-plugin-alertmanagercallback-" + version + ".jar"
+    archiveBaseName = title
     group = "de.gdata.mobilelab.alertmanagercallback"
     manifest {
         attributes(
                 'Implementation-Title': title,
-                'Implementation-Version': version,
+                'Implementation-Version': archiveVersion,
                 'Build-Time': new Date().format("yyy-MM-dd HH:mm:ss"),
                 'Graylog-Plugin-Properties-Path': 'de.gdata.mobilelab.alertmanagercallback.graylog-plugin-alertmanagercallback'
         )
