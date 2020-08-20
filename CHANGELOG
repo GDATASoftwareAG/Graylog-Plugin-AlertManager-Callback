@@ -1,6 +1,7 @@
-V 2.0
+V 1.2.2
 -----------
-* Added support for Graylog 3.3.5
+* Upgraded dependencies
+* Target changed to Graylog 3.3.5 (as legacy alarm callback)
 
 V 1.2.1
 -----------

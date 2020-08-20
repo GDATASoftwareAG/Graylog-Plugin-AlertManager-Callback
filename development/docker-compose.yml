@@ -28,7 +28,7 @@ services:
     image: graylog/graylog:3.3.5
     volumes:
       - graylog_journal:/usr/share/graylog/data/journal
-      - ../build/libs/graylog-plugin-alertmanagercallback-2.0.jar:/usr/share/graylog/plugin/graylog-plugin-alertmanagercallback.jar
+      - ../build/libs/graylog-plugin-alertmanagercallback-1.2.0.jar:/usr/share/graylog/plugin/graylog-plugin-alertmanagercallback.jar
     environment:
       # CHANGE ME (must be at least 16 characters)!
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper

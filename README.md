@@ -8,6 +8,11 @@ This plugin can be used for connecting [Graylog](https://www.graylog.org/) alert
 
 The plugin development is based on [Graylog2/graylog-plugin-sample](https://github.com/Graylog2/graylog-plugin-sample) which is mentioned in the [Graylog plugin documentation](http://docs.graylog.org/en/3.3/pages/plugins.html).
 
+**Note:** this plugin is currently only available as "Legacy Alarm Callbacks" item after adding it to Graylog
+![Legacy Alarm Callback](images/Legacy_Plugin.png)
+
+The current plugin version 1.2.2 has Graylog 3.3.5 as target. The plugin version 1.2.1 (see releases) targets Graylog 2.5.0 and above.
+
 ## Use Case
 You are using a Graylog for checking the logs for errors, a Prometheus for checking the service metrics and you would like to organize your alerts with a AlertManager you need to get your Graylog alerts into the AlertManager.
 This plugin provides the possibility to send your Graylog notifications with a AlertManager-Callback to your AlertManager.
@@ -55,6 +60,8 @@ You can use Docker and Docker-Compose to test changes of this plugin locally by 
 ![Configuration of Callback](images/New_AlertManager_Callback_Window.png)
 
 ## Planned Features
+* Implementation of EventNotification for usage as non-legacy notification plugin
+
 You would like to contribute anything? - Take a look at [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
